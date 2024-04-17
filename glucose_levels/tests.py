@@ -1,9 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from glucose_levels.models import GlucoseLevel, CustomUser
+from glucose_levels.serializers import CustomUserSerializer
 
 
 class GlucoseLevelsRetrieveAndPaginationTest(TestCase):
@@ -79,6 +81,5 @@ class GlucoseLevelsSortingAndFilteringTest(TestCase):
         url = reverse('glucose_level_list')
         response = self.client.get(url, {'user_id': self.user_id, 'start': '2024-04-16T12:00', 'stop': '2024-04-16T22:00'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data['results'])
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['serial_number'], self.glucose_level[2].serial_number)

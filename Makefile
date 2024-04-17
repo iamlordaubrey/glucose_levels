@@ -21,3 +21,6 @@ setup:
 
 pip_sync: requirements.txt
 	source $(VENV)/bin/activate && pip-sync requirements.txt
+
+runtest:
+	$(VENV)/bin/python manage.py test --keepdb $(spec)
