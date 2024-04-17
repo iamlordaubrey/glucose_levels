@@ -36,3 +36,49 @@ class GlucoseLevelsRetrieveAndPaginationTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
 
+
+class GlucoseLevelsSortingAndFilteringTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user_id = 'bbb'
+        self.custom_user = CustomUser.objects.create(id=self.user_id)
+        self.glucose_level = [
+            GlucoseLevel.objects.create(
+                user=self.custom_user,
+                device='A device',
+                serial_number='123',
+                timestamp='2024-04-17T12:00:00Z'
+            ),
+            GlucoseLevel.objects.create(
+                user=self.custom_user,
+                device='A device',
+                serial_number='234',
+                timestamp='2024-04-18T12:00:00Z'
+            ),
+            GlucoseLevel.objects.create(
+                user=self.custom_user,
+                device='A device',
+                serial_number='345',
+                timestamp='2024-04-16T12:00:00Z'
+            ),
+        ]
+
+    def test_sorting(self):
+        url = reverse('glucose_level_list')
+        response = self.client.get(url, {'user_id': self.user_id, 'ordering': 'timestamp'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 3)
+
+        # Sorted by timestamp. The first is GlucoseLevel object at index 2
+        self.assertEqual(response.data['results'][0]['serial_number'], self.glucose_level[2].serial_number)
+
+        # The third is GlucoseLevel object at index 1
+        self.assertEqual(response.data['results'][2]['serial_number'], self.glucose_level[1].serial_number)
+
+    def test_timestamp_filtering(self):
+        url = reverse('glucose_level_list')
+        response = self.client.get(url, {'user_id': self.user_id, 'start': '2024-04-16T12:00', 'stop': '2024-04-16T22:00'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print(response.data['results'])
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['serial_number'], self.glucose_level[2].serial_number)

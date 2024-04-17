@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.filters import OrderingFilter
 
 from glucose_levels.models import GlucoseLevel
 from glucose_levels.pagination import GlucoseLevelPagination
@@ -9,6 +10,9 @@ class GlucoseLevelList(generics.ListAPIView):
     serializer_class = GlucoseLevelSerializer
     queryset = GlucoseLevel.objects.all()
     pagination_class = GlucoseLevelPagination
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['timestamp']
+    ordering = ('-timestamp',)
 
     def get_queryset(self):
         user_id = self.request.query_params.get('user_id')
