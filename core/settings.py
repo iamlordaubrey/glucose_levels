@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'glucose_levels',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
